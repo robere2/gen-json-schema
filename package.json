@@ -1,6 +1,6 @@
 {
   "name": "gen-json-schema",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Convert JS object to JSON Schema",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
