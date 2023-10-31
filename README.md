@@ -1,20 +1,23 @@
-[![npm version](https://badge.fury.io/js/to-json-schema.svg)](https://badge.fury.io/js/to-json-schema)
-[![Build Status](https://travis-ci.org/ruzicka/to-json-schema.svg?branch=master)](https://travis-ci.org/ruzicka/to-json-schema)
-[![Coverage Status](https://coveralls.io/repos/github/ruzicka/to-json-schema/badge.svg?branch=master)](https://coveralls.io/github/ruzicka/to-json-schema?branch=master)
+[![npm version](https://badge.fury.io/js/gen-json-schema.svg)](https://badge.fury.io/js/gen-json-schema)
+[![Build Status](https://travis-ci.org/robere2/gen-json-schema.svg?branch=master)](https://travis-ci.org/robere2/gen-json-schema)
+[![Coverage Status](https://coveralls.io/repos/github/robere2/gen-json-schema/badge.svg?branch=master)](https://coveralls.io/github/robere2/gen-json-schema?branch=master)
 
-# to-json-schema
+# gen-json-schema
 
 Converts javascript objects (and other types) to corresponding JSON schema
+
+This is a fork of [ruzicka/to-json-schema](https://github.com/ruzicka/to-json-schema) with a fix for [issue #24](https://github.com/ruzicka/to-json-schema/issues/24). Since the original is
+no longer maintained, I plan to maintain this package, resolve oustanding issues and modernize it with ESM and types
 
 ## Install
 
 ```
-npm install to-json-schema
+npm install gen-json-schema
 ```
 
 ## Example usage
 ```javascript
-const toJsonSchema = require('to-json-schema');
+const toJsonSchema = require('gen-json-schema');
 
 const objToBeConverted = {
   name: 'David',
@@ -54,7 +57,7 @@ const schema = toJsonSchema(objToBeConverted);
 
 ## `toJsonSchema(value, options)`
 
-`to-json-schema` exports function that converts most javascript values to JSON schema. Such a schema can be used to
+`gen-json-schema` exports function that converts most javascript values to JSON schema. Such a schema can be used to
 further validation of similar objects/values
 
 * `value`: **required** Any javascript value
