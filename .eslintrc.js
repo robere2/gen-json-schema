@@ -16,13 +16,7 @@ module.exports = {
     'one-var': [2, {'uninitialized': 'always', 'initialized': 'never' }],
     'no-multiple-empty-lines': ['error', {'max': 2}],
     'no-unused-expressions': ['error', {'allowShortCircuit': true}],
-    'max-len': ['error', {
-      code: 130,
-      tabWidth: 2,
-      ignoreUrls: true,
-      ignoreComments: true,
-      ignoreRegExpLiterals: true,
-    }],
+    'max-len': ['off'],
     'comma-dangle': ['error', {
       arrays: 'always-multiline',
       objects: 'always-multiline',

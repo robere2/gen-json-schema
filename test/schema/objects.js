@@ -1,5 +1,6 @@
 'use strict'
 
+const {expect} = require('chai')
 const should = require('chai').should()
 const omit = require('lodash.omit')
 const merge = require('lodash.merge')
@@ -9,8 +10,6 @@ const testSchemaNormal = require('../helpers/testSchema').testSchemaWithoutArray
 const testSchemaMerge = require('../helpers/testSchema').testSchemaWithArrayMerge
 const testSchemaUniform = require('../helpers/testSchema').testSchemaArrayUniform
 const toJsonSchema = require('../../src/index')
-
-const {expect} = require('chai')
 
 describe('Objects', () => {
 
@@ -211,8 +210,7 @@ describe('Objects', () => {
 
     it('should return proper schema when postProcessFnc is used', () => {
       const options = {
-        postProcessFnc: (type, schema, value, defaultFunc) =>
-          (type === 'integer') ? merge({}, schema, {required: true}) : defaultFunc(type, schema, value),
+        postProcessFnc: (type, schema, value, defaultFunc) => (type === 'integer') ? merge({}, schema, {required: true}) : defaultFunc(type, schema, value),
       }
 
       const instance = {
@@ -342,8 +340,9 @@ describe('Objects', () => {
     it('Custom objects.postProcessFnc makes properties required on parent type level', () => {
       const options = {
         objects: {
-          postProcessFnc: (schema, obj, defaultFnc) =>
-            (merge({}, defaultFnc(schema, obj), {required: Object.getOwnPropertyNames(obj)})),
+          postProcessFnc: (schema, obj, defaultFnc) => merge({}, defaultFnc(schema, obj), {
+            required: Object.getOwnPropertyNames(obj),
+          }),
         },
       }
       testSchemaNormal({}, {type: 'object', required: []}, options)

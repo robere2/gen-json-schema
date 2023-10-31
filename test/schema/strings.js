@@ -1,9 +1,9 @@
 'use strict'
 
+const chai = require('chai')
 const cloneDeep = require('lodash.clonedeep')
 const testSchema = require('../helpers/testSchema').tesSchemaWithAndWithoutArrayMerge
 const toJsonSchema = require('../../src/index')
-const chai = require('chai')
 
 chai.should()
 

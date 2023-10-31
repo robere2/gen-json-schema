@@ -1,8 +1,8 @@
 'use strict'
 
+const {expect} = require('chai')
 const testSchemaMerge = require('./helpers/testSchema').testSchemaWithArrayMerge
 const toJsonSchema = require('../src/index')
-const {expect} = require('chai')
 
 describe('Misc', () => {
 

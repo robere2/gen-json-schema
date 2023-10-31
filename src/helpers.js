@@ -46,8 +46,7 @@ const helpers = {
         if (isEqual(xor(schema1Keys, schema2Keys), ['items'])) {
           const schemaWithoutItems = schema1Keys.length > schema2Keys.length ? schema2 : schema1
           const schemaWithItems = schema1Keys.length > schema2Keys.length ? schema1 : schema2
-          const isSame = keys(schemaWithoutItems).reduce((acc, current) =>
-            isEqual(schemaWithoutItems[current], schemaWithItems[current]) && acc, true)
+          const isSame = keys(schemaWithoutItems).reduce((acc, current) => isEqual(schemaWithoutItems[current], schemaWithItems[current]) && acc, true)
           if (isSame) {
             return schemaWithoutItems
           }

@@ -60,8 +60,7 @@ const FORMAT_REGEXPS = {
 
   alpha: /^[a-zA-Z]+$/,
   alphanumeric: /^[a-zA-Z0-9]+$/,
-  'utc-millisec': input =>
-    (typeof input === 'string') && parseFloat(input) === parseInt(input, 10) && !isNaN(input), // eslint-disable-line no-restricted-globals
+  'utc-millisec': input => (typeof input === 'string') && parseFloat(input) === parseInt(input, 10) && !isNaN(input), // eslint-disable-line no-restricted-globals
   regex /* istanbul ignore next: not supporting regex right now */ (input) { // eslint-disable-line space-before-function-paren
     let result = true
     try {

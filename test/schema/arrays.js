@@ -316,8 +316,8 @@ describe('Array', () => {
       should.throw(() => testSchema(data), Error)
     })
 
-    it('should get schema for array of complex objects containing deeply ' +
-      'nested arrays of all kind of compatible/incompatible types', () => {
+    it('should get schema for array of complex objects containing deeply '
+      + 'nested arrays of all kind of compatible/incompatible types', () => {
       const data = [
         {
           id: 11,
