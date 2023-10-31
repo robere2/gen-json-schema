@@ -9,8 +9,7 @@
     "prepublishOnly": "npm test && npm run build",
     "lint": "eslint src/ test/",
     "test": "mocha --recursive",
-    "test:coverage": "nyc mocha --recursive",
-    "test:coveralls": "nyc --reporter=lcov --reporter=text-lcov npm test && cat ./coverage/lcov.info | coveralls"
+    "test:coverage": "nyc --reporter=lcov --reporter=text-lcov npm run test"
   },
   "repository": {
     "type": "git",
