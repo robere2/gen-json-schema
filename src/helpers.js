@@ -38,6 +38,10 @@ const helpers = {
    * @returns {object|null}
    */
   mergeSchemaObjs(schema1, schema2) {
+    if (!schema1 || !schema2) {
+      return null
+    }
+
     const schema1Keys = keys(schema1)
     const schema2Keys = keys(schema2)
     if (!isEqual(schema1Keys, schema2Keys)) {
