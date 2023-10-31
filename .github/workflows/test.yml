@@ -33,9 +33,12 @@ jobs:
 
       - name: Setup Environment
         uses: ./.github/actions/setup
-
-      - name: Run Tests
-        run: npm run test
         
       - name: Lint
         run: npm run lint
+
+      - name: Run Tests
+        run: npm run test:coverage
+
+      - name: Upload Coverage
+        uses: coverallsapp/github-action@v2

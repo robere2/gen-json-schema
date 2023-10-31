@@ -1,5 +1,5 @@
 [![npm version](https://badge.fury.io/js/gen-json-schema.svg)](https://badge.fury.io/js/gen-json-schema)
-[![Build Status](https://travis-ci.org/robere2/gen-json-schema.svg?branch=master)](https://travis-ci.org/robere2/gen-json-schema)
+[![Test Suite](https://github.com/robere2/gen-json-schema/actions/workflows/test.yml/badge.svg)](https://github.com/robere2/gen-json-schema/actions/workflows/test.yml)
 [![Coverage Status](https://coveralls.io/repos/github/robere2/gen-json-schema/badge.svg?branch=master)](https://coveralls.io/github/robere2/gen-json-schema?branch=master)
 
 # gen-json-schema
