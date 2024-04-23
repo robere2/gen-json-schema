@@ -1,8 +1,8 @@
-.babelrc
 .editorconfig
 .eslintrc.js
 .gitignore
 .npmignore
 .nvmrc
-nyc.config.js
 tsconfig.json
+test
+.github

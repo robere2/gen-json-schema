@@ -19,7 +19,7 @@ jobs:
 
       - name: Setup Environment
         uses: ./.github/actions/setup
-        
+
       - name: Build Package
         run: npm run build
   units:
@@ -33,7 +33,7 @@ jobs:
 
       - name: Setup Environment
         uses: ./.github/actions/setup
-        
+
       - name: Lint
         run: npm run lint
 
