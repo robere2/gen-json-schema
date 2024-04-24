@@ -1,4 +1,4 @@
-import { GenericHandler } from "../GenericHandler";
+import { GenericHandler } from "../GenericHandler.ts";
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export const FunctionHandler: GenericHandler<Function> = (options, value, stack, handle) => {
@@ -6,5 +6,5 @@ export const FunctionHandler: GenericHandler<Function> = (options, value, stack,
         throw new Error(`Encountered Function ${value.name} when function-to-object
             coercion is disabled. See option "coerceFunctionsToObjects" for more information.`);
     }
-    return handle.object(options, value as never, stack, handle);
+    return handle.object(options, value, stack, handle);
 };

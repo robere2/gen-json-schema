@@ -1,10 +1,10 @@
 import { JSONSchema7 } from "json-schema";
-import { StackEntry } from "../../StackEntry";
-import { GenericHandler } from "../GenericHandler";
+import { StackEntry } from "../../StackEntry.ts";
+import { GenericHandler } from "../GenericHandler.ts";
 
 export const ObjectHandler: GenericHandler<object> = (options, value, stack, handle) => {
     if (Array.isArray(value)) {
-        return handle.array(options, value as never, stack, handle);
+        return handle.array(options, value, stack, handle);
     }
     if (value === null) {
         return {

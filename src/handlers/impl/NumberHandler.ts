@@ -1,5 +1,5 @@
 import { JSONSchema7 } from "json-schema";
-import { GenericHandler } from "../GenericHandler";
+import { GenericHandler } from "../GenericHandler.ts";
 
 export const NumberHandler: GenericHandler<number> = (options, value) => {
     const output: JSONSchema7 = {

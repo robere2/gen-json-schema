@@ -1,6 +1,6 @@
-import { GenericHandler } from "../GenericHandler";
+import { GenericHandler } from "../GenericHandler.ts";
 
-export const ArrayHandler: GenericHandler<never[]> = () => {
+export const ArrayHandler: GenericHandler<unknown[]> = () => {
     return {
         type: "array"
     };

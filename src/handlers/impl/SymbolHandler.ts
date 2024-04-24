@@ -1,4 +1,4 @@
-import { GenericHandler } from "../GenericHandler";
+import { GenericHandler } from "../GenericHandler.ts";
 
 export const SymbolHandler: GenericHandler<symbol> = (options, value, stack, handle) => {
     if (!options.coerceSymbolsToStrings) {

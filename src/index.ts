@@ -1,12 +1,12 @@
 import { JSONSchema7 } from "json-schema";
-import { defaultSchemaGeneratorOptions, SchemaGeneratorOptions } from "./SchemaGeneratorOptions";
-import { handle } from "./handlers";
+import { defaultSchemaGeneratorOptions, SchemaGeneratorOptions } from "./SchemaGeneratorOptions.ts";
+import { handle } from "./handlers.ts";
 
 function isValidOption(optionName: string): optionName is keyof SchemaGeneratorOptions {
     return Object.hasOwn(defaultSchemaGeneratorOptions, optionName);
 }
 
-function generate<T extends never>(options: SchemaGeneratorOptions = {}, value: T): JSONSchema7 {
+function generate<T>(value: T, options: SchemaGeneratorOptions = {}): JSONSchema7 {
     // Validate all options, and delete any which are specifically passed as undefined. We will
     // overwrite them with the default.
     for (const prop in options) {
@@ -21,10 +21,10 @@ function generate<T extends never>(options: SchemaGeneratorOptions = {}, value: 
 
     // This cast is safe because we deleted all explicitly provided undefined values and then
     // spread in the default values.
-    const requiredOptions = (options = {
+    const requiredOptions = {
         ...defaultSchemaGeneratorOptions,
         ...options
-    } as Required<SchemaGeneratorOptions>);
+    } as Required<SchemaGeneratorOptions>;
 
     return handle(requiredOptions, value, [], handle);
 }

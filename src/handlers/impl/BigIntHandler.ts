@@ -1,4 +1,4 @@
-import { GenericHandler } from "../GenericHandler";
+import { GenericHandler } from "../GenericHandler.ts";
 
 /**
  * JSON schema draft 7 does not support any sort of "bigint" format. We just
