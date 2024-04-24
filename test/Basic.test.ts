@@ -63,6 +63,11 @@ test("Number handling", () => {
     assert.deepStrictEqual(out, {
         type: "number"
     });
+
+    out = generate(43, { convertInts: false });
+    assert.deepStrictEqual(out, {
+        type: "number"
+    });
 });
 
 test("Undefined handling", () => {
