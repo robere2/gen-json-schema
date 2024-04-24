@@ -1,8 +1,12 @@
 .editorconfig
-.eslintrc.js
 .gitignore
 .npmignore
 .nvmrc
 tsconfig.json
 test
 .github
+lcov.info
+.prettierignore
+.prettierrc
+rollup.config.ts
+eslint.config.mjs
