@@ -10,6 +10,7 @@
   },
   "scripts": {
     "circular": "madge --circular --extensions ts src",
+    "test": "glob -c \"node --experimental-test-coverage --loader ts-node/esm --test\" \"test/**/*.test.ts\"",
     "lint": "eslint src && npm run circular",
     "prebuild": "rimraf dist",
     "build": "rollup --config --configPlugin @rollup/plugin-typescript",
