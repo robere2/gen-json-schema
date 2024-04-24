@@ -10,6 +10,9 @@ export default [
     ...tseslint.configs.recommended,
     eslintConfigPrettier,
     {
-        rules: {}
+        files: ["test/**/*"],
+        rules: {
+            "@typescript-eslint/no-explicit-any": "off"
+        }
     }
 ];
