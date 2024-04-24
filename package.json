@@ -13,6 +13,7 @@
     "pretest:lcov": "node --loader ts-node/esm scripts/test-runner-node-version.ts",
     "test:lcov": "glob -c \"node --experimental-test-coverage --test-reporter=spec --test-reporter=lcov --test-reporter-destination=stdout --test-reporter-destination=lcov.info  --loader ts-node/esm --test\" \"test/**/*.test.ts\"",
     "test": "glob -c \"node --experimental-test-coverage --loader ts-node/esm --test\" \"test/**/*.test.ts\"",
+    "test:file": "node --experimental-test-coverage --loader ts-node/esm --test",
     "lint": "eslint src && npm run circular",
     "prebuild": "rimraf dist",
     "build": "rollup --config --configPlugin @rollup/plugin-typescript",
