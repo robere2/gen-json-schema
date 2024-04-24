@@ -8,6 +8,8 @@
     "types": "./dist/index.d.ts"
   },
   "scripts": {
+    "circular": "madge --circular --extensions ts src",
+    "lint": "eslint src && npm run circular",
     "prebuild": "rimraf dist",
     "build": "rollup --config --configPlugin @rollup/plugin-typescript",
     "postbuild": "rimraf dist/dts",
@@ -26,12 +28,14 @@
   "devDependencies": {
     "@eslint/js": "^9.1.1",
     "@rollup/plugin-typescript": "^11.1.6",
+    "@types/json-schema": "^7.0.15",
     "@types/node": "^20.12.7",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "globals": "^15.0.0",
     "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
+    "madge": "^7.0.0",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
     "rollup": "^4.16.4",
@@ -54,6 +58,9 @@
     "node": ">=18"
   },
   "lint-staged": {
-    "**/*": "prettier --write --ignore-unknown"
+    "**/*": [
+      "eslint",
+      "prettier --write --ignore-unknown"
+    ]
   }
 }
