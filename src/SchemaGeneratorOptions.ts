@@ -1,5 +1,5 @@
 import { JSONSchema7, JSONSchema7Definition } from "json-schema";
-import { StackEntry } from "./StackEntry.ts";
+import { Stack } from "./Stack.ts";
 
 export type SchemaGeneratorOptions = {
     requireAll?: boolean;
@@ -10,8 +10,8 @@ export type SchemaGeneratorOptions = {
     additionalProperties?: JSONSchema7Definition;
     middleware?: (
         value: unknown,
-        stack: StackEntry[],
-        run: (value: unknown, stack: StackEntry[]) => JSONSchema7
+        stack: Stack,
+        run: (value: unknown, stack: Stack) => JSONSchema7
     ) => JSONSchema7;
 };
 

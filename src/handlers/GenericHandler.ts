@@ -1,13 +1,13 @@
 import { SchemaGeneratorOptions } from "../SchemaGeneratorOptions.ts";
-import { StackEntry } from "../StackEntry.ts";
 import { JSONSchema7 } from "json-schema";
 import { AllTypeofs } from "../util.ts";
+import { Stack } from "../Stack.ts";
 
 export interface GenericHandler<T> {
     (
         options: Required<SchemaGeneratorOptions>,
         value: T,
-        stack: StackEntry[],
+        stack: Stack,
         handle: CompleteHandler<unknown>
     ): JSONSchema7;
 }

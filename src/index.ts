@@ -1,6 +1,7 @@
 import { JSONSchema7 } from "json-schema";
 import { defaultSchemaGeneratorOptions, SchemaGeneratorOptions } from "./SchemaGeneratorOptions.ts";
 import { handle } from "./handlers.ts";
+import { Stack } from "./Stack.ts";
 
 function isValidOption(optionName: string): optionName is keyof SchemaGeneratorOptions {
     return Object.hasOwn(defaultSchemaGeneratorOptions, optionName);
@@ -26,7 +27,7 @@ function generate<T>(value: T, options: SchemaGeneratorOptions = {}): JSONSchema
         ...options
     } as Required<SchemaGeneratorOptions>;
 
-    return handle(requiredOptions, value, [], handle);
+    return handle(requiredOptions, value, new Stack(), handle);
 }
 
-export { generate, SchemaGeneratorOptions };
+export { generate, SchemaGeneratorOptions, Stack };

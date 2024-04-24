@@ -1,5 +1,4 @@
 import { JSONSchema7 } from "json-schema";
-import { StackEntry } from "../../StackEntry.ts";
 import { GenericHandler } from "../GenericHandler.ts";
 
 export const ObjectHandler: GenericHandler<object> = (options, value, stack, handle) => {
@@ -25,12 +24,7 @@ export const ObjectHandler: GenericHandler<object> = (options, value, stack, han
     output.properties = {};
 
     for (const prop in value) {
-        output.properties[prop] = handle(
-            options,
-            (value as never)[prop],
-            [...stack, new StackEntry(prop)],
-            handle
-        );
+        output.properties[prop] = handle(options, (value as never)[prop], stack.push(prop), handle);
     }
 
     return output;
