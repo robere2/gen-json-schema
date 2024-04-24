@@ -2,15 +2,16 @@ import { generate } from "../src/index.ts";
 import { test } from "node:test";
 import assert from "node:assert";
 import { JSONSchema7 } from "json-schema";
+import { assertSchema } from "./util.ts";
 
 test("Symbol coercion handling", () => {
     let out = generate(Symbol("Hi there"));
-    assert.deepStrictEqual(out, {
+    assertSchema(out, {
         type: "string"
     });
 
     out = generate(Symbol());
-    assert.deepStrictEqual(out, {
+    assertSchema(out, {
         type: "string"
     });
 
@@ -46,16 +47,16 @@ test("Function coercion handling", () => {
     };
 
     let out = generate(fnWithProps);
-    assert.deepStrictEqual(out, withPropsOutput);
+    assertSchema(out, withPropsOutput);
 
     out = generate(lambdaWithProps);
-    assert.deepStrictEqual(out, withPropsOutput);
+    assertSchema(out, withPropsOutput);
 
     out = generate(fnNoProps);
-    assert.deepStrictEqual(out, { type: "object" });
+    assertSchema(out, { type: "object" });
 
     out = generate(lambdaNoProps);
-    assert.deepStrictEqual(out, { type: "object" });
+    assertSchema(out, { type: "object" });
 
     assert.throws(() => {
         out = generate(fnWithProps, { coerceFunctionsToObjects: false });
