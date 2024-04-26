@@ -1,5 +1,6 @@
 import { generate } from "../src/index.ts";
 import { test } from "node:test";
+// @ts-ignore
 import { assertSchema } from "./util.ts";
 
 test("Empty array handling", () => {
