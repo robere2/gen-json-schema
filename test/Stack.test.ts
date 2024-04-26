@@ -230,3 +230,82 @@ test("Stack.accessOn() Recursive Object", () => {
 
     assert.strictEqual(stack.accessOn(b), a);
 });
+
+test("Stack.accessOn() Strict undefined", () => {
+    const stack = new Stack(["a", "b", "c"]);
+    const obj = {
+        a: {
+            b: {}
+        }
+    };
+
+    assert.strictEqual(stack.accessOn(obj), undefined);
+});
+
+test("Stack.accessOn() Strict Undefined Fail", () => {
+    const stack = new Stack(["a"]);
+
+    assert.throws(() => {
+        stack.accessOn(undefined);
+    });
+});
+
+test("Stack.accessOn() Strict Object Fail", () => {
+    const stack = new Stack(["a", "b", "c", "d"]);
+    const obj = {
+        a: {
+            b: {
+                foo: "bar"
+            }
+        }
+    };
+
+    assert.throws(() => {
+        stack.accessOn(obj);
+    });
+});
+
+test("Stack.accessOn() Non-strict Object Fail", () => {
+    const stack = new Stack(["a", "b", "c", "d"]);
+    const obj = {
+        a: {
+            b: {
+                foo: "bar"
+            }
+        }
+    };
+
+    assert.strictEqual(stack.accessOn(obj, false), undefined);
+});
+
+test("Stack.accessOn() Strict Array Fail", () => {
+    const stack = new Stack(["a", "b", 1, "d"]);
+    const obj = {
+        a: {
+            b: [
+                {
+                    d: "index 1 doesnt exist"
+                }
+            ]
+        }
+    };
+
+    assert.throws(() => {
+        stack.accessOn(obj);
+    });
+});
+
+test("Stack.accessOn() Non-strict Array Fail", () => {
+    const stack = new Stack(["a", "b", 1, "d"]);
+    const obj = {
+        a: {
+            b: [
+                {
+                    d: "index 1 doesnt exist"
+                }
+            ]
+        }
+    };
+
+    assert.strictEqual(stack.accessOn(obj, false), undefined);
+});

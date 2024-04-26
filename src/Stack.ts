@@ -23,23 +23,23 @@ export class Stack {
 
     public accessOn(object: unknown, strict: boolean = true): unknown {
         const accessing = [...this.stack].reverse();
+        let prevValue: unknown = undefined;
         let currentValue: unknown = object;
         while (accessing.length > 0) {
             const next = accessing.pop()!;
             if (typeof currentValue !== "object" || currentValue === null) {
                 if (strict) {
-                    if (Array.isArray(currentValue)) {
-                        throw new Error(
-                            `Cannot access index ${next.toString()} on ${currentValue}`
-                        );
+                    if (Array.isArray(prevValue)) {
+                        throw new Error(`Cannot access index ${next.toString()} on ${prevValue}`);
                     } else {
                         throw new Error(
-                            `Cannot access property ${next.toString()} on ${currentValue}`
+                            `Cannot access property ${next.toString()} on ${prevValue}`
                         );
                     }
                 }
                 return undefined;
             }
+            prevValue = currentValue;
             currentValue = (currentValue as never)[next];
         }
         return currentValue;
