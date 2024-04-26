@@ -18,6 +18,7 @@
     "prebuild": "rimraf dist",
     "build": "rollup --config --configPlugin @rollup/plugin-typescript",
     "postbuild": "rimraf dist/dts",
+    "playground:init": "node --no-warnings --loader ts-node/esm scripts/playground-init.ts",
     "playground": "node --no-warnings --loader ts-node/esm scripts/playground.ts",
     "prepare": "husky"
   },
