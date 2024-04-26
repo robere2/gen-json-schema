@@ -1,3 +1,4 @@
 dist
 .husky
 .idea
+scripts/playground.ts

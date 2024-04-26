@@ -10,3 +10,4 @@ lcov.info
 .prettierrc
 rollup.config.ts
 eslint.config.mjs
+scripts/playground.ts
