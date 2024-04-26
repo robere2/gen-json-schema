@@ -111,3 +111,122 @@ test("Stack.fromString() with non-alphanumeric characters", () => {
     assert.strictEqual(stack.elements[2], "Test\\With\\Backslash");
     assert.strictEqual(stack.elements[3], "Test.With.Periods");
 });
+
+test("Stacks with number elements", () => {
+    let stack = new Stack([4, 11]);
+    assert.strictEqual(stack.depth, 2);
+    assert.strictEqual(stack.elements[0], 4);
+    assert.strictEqual(stack.elements[1], 11);
+    assert.strictEqual(stack.toString(), "4/11");
+
+    // Stack can also contain strings, and numbers can be pushed
+    stack = stack.push("hello");
+    stack = stack.push(7);
+    assert.strictEqual(stack.depth, 4);
+    assert.strictEqual(stack.elements[0], 4);
+    assert.strictEqual(stack.elements[1], 11);
+    assert.strictEqual(stack.elements[2], "hello");
+    assert.strictEqual(stack.elements[3], 7);
+    assert.strictEqual(stack.toString(), "4/11/hello/7");
+
+    // fromString() does not parse numbers
+    stack = Stack.fromString(stack.toString());
+    assert.strictEqual(stack.depth, 4);
+    assert.strictEqual(stack.elements[0], "4");
+    assert.strictEqual(stack.elements[1], "11");
+    assert.strictEqual(stack.elements[2], "hello");
+    assert.strictEqual(stack.elements[3], "7");
+    assert.strictEqual(stack.toString(), "4/11/hello/7");
+
+    // Elements can be non-integers
+    stack = stack.push(3.14159);
+    assert.strictEqual(stack.depth, 5);
+    assert.strictEqual(stack.elements[0], "4");
+    assert.strictEqual(stack.elements[1], "11");
+    assert.strictEqual(stack.elements[2], "hello");
+    assert.strictEqual(stack.elements[3], "7");
+    assert.strictEqual(stack.elements[4], 3.14159);
+    assert.strictEqual(stack.toString(), "4/11/hello/7/3.14159");
+});
+
+test("Stacks with symbol elements", () => {
+    const symbolArr = [Symbol(), Symbol("hello")];
+    let stack = new Stack(symbolArr);
+    assert.strictEqual(stack.depth, 2);
+    assert.strictEqual(stack.elements[0], symbolArr[0]);
+    assert.strictEqual(stack.elements[1], symbolArr[1]);
+    assert.notStrictEqual(stack.elements[0], Symbol());
+    assert.notStrictEqual(stack.elements[1], Symbol("hello"));
+    assert.strictEqual(stack.toString(), "Symbol()/Symbol(hello)");
+
+    // Stack can also contain strings and numbers and symbols can be pushed
+    stack = stack.push("hello");
+    stack = stack.push(7);
+    symbolArr[2] = Symbol("hello");
+    stack = stack.push(symbolArr[2]);
+    assert.strictEqual(stack.depth, 5);
+    assert.strictEqual(stack.elements[0], symbolArr[0]);
+    assert.strictEqual(stack.elements[1], symbolArr[1]);
+    assert.strictEqual(stack.elements[2], "hello");
+    assert.strictEqual(stack.elements[3], 7);
+    assert.strictEqual(stack.elements[4], symbolArr[2]);
+    assert.notStrictEqual(stack.elements[1], stack.elements[2]);
+    assert.notStrictEqual(stack.elements[1], stack.elements[4]);
+    assert.strictEqual(stack.toString(), "Symbol()/Symbol(hello)/hello/7/Symbol(hello)");
+
+    // fromString() does not parse symbols
+    stack = Stack.fromString(stack.toString());
+    assert.strictEqual(stack.depth, 5);
+    assert.strictEqual(stack.elements[0], "Symbol()");
+    assert.strictEqual(stack.elements[1], "Symbol(hello)");
+    assert.strictEqual(stack.elements[2], "hello");
+    assert.strictEqual(stack.elements[3], "7");
+    assert.strictEqual(stack.elements[4], "Symbol(hello)");
+    assert.strictEqual(stack.toString(), "Symbol()/Symbol(hello)/hello/7/Symbol(hello)");
+});
+
+test("Stack.accessOn() Simple Objects", () => {
+    let stack = new Stack([]);
+    const obj: any = {};
+    assert.strictEqual(stack.accessOn(obj), obj);
+
+    stack = new Stack(["abc"]);
+    obj.abc = 123;
+    assert.strictEqual(stack.accessOn(obj), obj.abc);
+    assert.strictEqual(stack.accessOn(obj), 123);
+
+    stack = new Stack(["xyz", 456]);
+    obj.xyz = {
+        456: "Elephant!"
+    };
+    assert.strictEqual(stack.accessOn(obj), obj.xyz[456]);
+    assert.strictEqual(stack.accessOn(obj), "Elephant!");
+});
+
+test("Stack.accessOn() Arrays & Symbols", () => {
+    let stack = new Stack(["arr", 2]);
+    const obj: any = {
+        arr: ["hi", "hello", "waddup"]
+    };
+    assert.strictEqual(stack.accessOn(obj), obj.arr[2]);
+    assert.strictEqual(stack.accessOn(obj), "waddup");
+
+    const sym = Symbol("My Symbol");
+    stack = new Stack(["xyz", sym]);
+    obj.xyz = {
+        [sym]: "Milk"
+    };
+    assert.strictEqual(stack.accessOn(obj), obj.xyz[sym]);
+    assert.strictEqual(stack.accessOn(obj), "Milk");
+});
+
+test("Stack.accessOn() Recursive Object", () => {
+    const stack = new Stack(["a", "b", "a", "b", "a"]);
+    const a: any = {};
+    const b: any = {};
+
+    a.b = b;
+    b.a = a;
+
+    assert.strictEqual(stack.accessOn(b), a);
+});
