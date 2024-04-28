@@ -22,11 +22,11 @@ export class Stack {
     }
 
     public accessOn(object: unknown, strict: boolean = true): unknown {
-        const accessing = [...this.stack].reverse();
+        const accessing = [...this.stack];
         let prevValue: unknown = undefined;
         let currentValue: unknown = object;
         while (accessing.length > 0) {
-            const next = accessing.pop()!;
+            const next = accessing.shift()!;
             if (typeof currentValue !== "object" || currentValue === null) {
                 if (strict) {
                     if (Array.isArray(prevValue)) {

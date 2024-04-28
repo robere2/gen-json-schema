@@ -12,10 +12,27 @@ test("Stack.push()", () => {
 test("Stack.pop()", () => {
     let stack = new Stack();
     stack = stack.push("123");
+    stack = stack.push("456");
     stack = stack.pop();
-    assert.strictEqual(stack.depth, 0);
+    assert.strictEqual(stack.depth, 1);
+    assert.strictEqual(stack.toString(), "123");
+    stack = stack.pop();
     assert.throws(() => {
         stack.pop();
+    });
+});
+
+test("Stack.shift()", () => {
+    let stack = new Stack();
+    stack = stack.push("123");
+    stack = stack.push("456");
+    stack = stack.shift();
+    assert.strictEqual(stack.depth, 1);
+    assert.strictEqual(stack.toString(), "456");
+    stack = stack.shift();
+    assert.strictEqual(stack.depth, 0);
+    assert.throws(() => {
+        stack.shift();
     });
 });
 
