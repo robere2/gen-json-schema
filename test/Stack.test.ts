@@ -1,12 +1,22 @@
-import { test } from "node:test";
+import { describe, test } from "node:test";
 import { Stack } from "../src/index.ts";
 import assert from "node:assert";
+import { JSONSchema7 } from "json-schema";
 
-test("Stack.push()", () => {
-    let stack = new Stack();
-    assert.strictEqual(stack.depth, 0);
-    stack = stack.push("123");
-    assert.strictEqual(stack.depth, 1);
+describe("Stack.push()", () => {
+    test("Basic", () => {
+        let stack = new Stack();
+        assert.strictEqual(stack.depth, 0);
+        stack = stack.push("123");
+        assert.strictEqual(stack.depth, 1);
+    });
+
+    test("Multiple elements", () => {
+        let stack = new Stack();
+        assert.strictEqual(stack.depth, 0);
+        stack = stack.push("123", "456", "bloop");
+        assert.strictEqual(stack.depth, 3);
+    });
 });
 
 test("Stack.pop()", () => {
@@ -110,25 +120,6 @@ test("Stack elements with non-alphanumeric characters", () => {
     );
 });
 
-test("Stack.fromString()", () => {
-    const stack = Stack.fromString("abc/123/456");
-    assert.strictEqual(stack.depth, 3);
-    assert.strictEqual(stack.elements[0], "abc");
-    assert.strictEqual(stack.elements[1], "123");
-    assert.strictEqual(stack.elements[2], "456");
-});
-
-test("Stack.fromString() with non-alphanumeric characters", () => {
-    const stack = Stack.fromString(
-        "Element One/Test\\/With\\/Slash/Test\\\\With\\\\Backslash/Test.With.Periods"
-    );
-    assert.strictEqual(stack.depth, 4);
-    assert.strictEqual(stack.elements[0], "Element One");
-    assert.strictEqual(stack.elements[1], "Test/With/Slash");
-    assert.strictEqual(stack.elements[2], "Test\\With\\Backslash");
-    assert.strictEqual(stack.elements[3], "Test.With.Periods");
-});
-
 test("Stacks with number elements", () => {
     let stack = new Stack([4, 11]);
     assert.strictEqual(stack.depth, 2);
@@ -202,127 +193,485 @@ test("Stacks with symbol elements", () => {
     assert.strictEqual(stack.toString(), "Symbol()/Symbol(hello)/hello/7/Symbol(hello)");
 });
 
-test("Stack.accessOn() Simple Objects", () => {
-    let stack = new Stack([]);
-    const obj: any = {};
-    assert.strictEqual(stack.accessOn(obj), obj);
+describe("Stack.fromString()", () => {
+    test("Basic", () => {
+        const stack = Stack.fromString("abc/123/456");
+        assert.strictEqual(stack.depth, 3);
+        assert.strictEqual(stack.elements[0], "abc");
+        assert.strictEqual(stack.elements[1], "123");
+        assert.strictEqual(stack.elements[2], "456");
+    });
 
-    stack = new Stack(["abc"]);
-    obj.abc = 123;
-    assert.strictEqual(stack.accessOn(obj), obj.abc);
-    assert.strictEqual(stack.accessOn(obj), 123);
-
-    stack = new Stack(["xyz", 456]);
-    obj.xyz = {
-        456: "Elephant!"
-    };
-    assert.strictEqual(stack.accessOn(obj), obj.xyz[456]);
-    assert.strictEqual(stack.accessOn(obj), "Elephant!");
-});
-
-test("Stack.accessOn() Arrays & Symbols", () => {
-    let stack = new Stack(["arr", 2]);
-    const obj: any = {
-        arr: ["hi", "hello", "waddup"]
-    };
-    assert.strictEqual(stack.accessOn(obj), obj.arr[2]);
-    assert.strictEqual(stack.accessOn(obj), "waddup");
-
-    const sym = Symbol("My Symbol");
-    stack = new Stack(["xyz", sym]);
-    obj.xyz = {
-        [sym]: "Milk"
-    };
-    assert.strictEqual(stack.accessOn(obj), obj.xyz[sym]);
-    assert.strictEqual(stack.accessOn(obj), "Milk");
-});
-
-test("Stack.accessOn() Recursive Object", () => {
-    const stack = new Stack(["a", "b", "a", "b", "a"]);
-    const a: any = {};
-    const b: any = {};
-
-    a.b = b;
-    b.a = a;
-
-    assert.strictEqual(stack.accessOn(b), a);
-});
-
-test("Stack.accessOn() Strict undefined", () => {
-    const stack = new Stack(["a", "b", "c"]);
-    const obj = {
-        a: {
-            b: {}
-        }
-    };
-
-    assert.strictEqual(stack.accessOn(obj), undefined);
-});
-
-test("Stack.accessOn() Strict Undefined Fail", () => {
-    const stack = new Stack(["a"]);
-
-    assert.throws(() => {
-        stack.accessOn(undefined);
+    test("Non-alphanumeric characters", () => {
+        const stack = Stack.fromString(
+            "Element One/Test\\/With\\/Slash/Test\\\\With\\\\Backslash/Test.With.Periods"
+        );
+        assert.strictEqual(stack.depth, 4);
+        assert.strictEqual(stack.elements[0], "Element One");
+        assert.strictEqual(stack.elements[1], "Test/With/Slash");
+        assert.strictEqual(stack.elements[2], "Test\\With\\Backslash");
+        assert.strictEqual(stack.elements[3], "Test.With.Periods");
     });
 });
 
-test("Stack.accessOn() Strict Object Fail", () => {
-    const stack = new Stack(["a", "b", "c", "d"]);
-    const obj = {
-        a: {
-            b: {
-                foo: "bar"
+describe("Stack.accessOn()", () => {
+    test("Simple Objects", () => {
+        let stack = new Stack([]);
+        const obj: any = {};
+        assert.strictEqual(stack.accessOn(obj), obj);
+
+        stack = new Stack(["abc"]);
+        obj.abc = 123;
+        assert.strictEqual(stack.accessOn(obj), obj.abc);
+        assert.strictEqual(stack.accessOn(obj), 123);
+
+        stack = new Stack(["xyz", 456]);
+        obj.xyz = {
+            456: "Elephant!"
+        };
+        assert.strictEqual(stack.accessOn(obj), obj.xyz[456]);
+        assert.strictEqual(stack.accessOn(obj), "Elephant!");
+    });
+
+    test("Arrays & Symbols", () => {
+        let stack = new Stack(["arr", 2]);
+        const obj: any = {
+            arr: ["hi", "hello", "waddup"]
+        };
+        assert.strictEqual(stack.accessOn(obj), obj.arr[2]);
+        assert.strictEqual(stack.accessOn(obj), "waddup");
+
+        const sym = Symbol("My Symbol");
+        stack = new Stack(["xyz", sym]);
+        obj.xyz = {
+            [sym]: "Milk"
+        };
+        assert.strictEqual(stack.accessOn(obj), obj.xyz[sym]);
+        assert.strictEqual(stack.accessOn(obj), "Milk");
+    });
+
+    test("Recursive Object", () => {
+        const stack = new Stack(["a", "b", "a", "b", "a"]);
+        const a: any = {};
+        const b: any = {};
+
+        a.b = b;
+        b.a = a;
+
+        assert.strictEqual(stack.accessOn(b), a);
+    });
+
+    test("Strict undefined", () => {
+        const stack = new Stack(["a", "b", "c"]);
+        const obj = {
+            a: {
+                b: {}
             }
-        }
-    };
+        };
 
-    assert.throws(() => {
-        stack.accessOn(obj);
+        assert.strictEqual(stack.accessOn(obj), undefined);
     });
-});
 
-test("Stack.accessOn() Non-strict Object Fail", () => {
-    const stack = new Stack(["a", "b", "c", "d"]);
-    const obj = {
-        a: {
-            b: {
-                foo: "bar"
+    test("Strict Undefined Fail", () => {
+        const stack = new Stack(["a"]);
+
+        assert.throws(() => {
+            stack.accessOn(undefined);
+        });
+    });
+
+    test("Strict Object Fail", () => {
+        const stack = new Stack(["a", "b", "c", "d"]);
+        const obj = {
+            a: {
+                b: {
+                    foo: "bar"
+                }
             }
-        }
-    };
+        };
 
-    assert.strictEqual(stack.accessOn(obj, false), undefined);
-});
+        assert.throws(() => {
+            stack.accessOn(obj);
+        });
+    });
 
-test("Stack.accessOn() Strict Array Fail", () => {
-    const stack = new Stack(["a", "b", 1, "d"]);
-    const obj = {
-        a: {
-            b: [
-                {
-                    d: "index 1 doesnt exist"
+    test("Non-strict Object Fail", () => {
+        const stack = new Stack(["a", "b", "c", "d"]);
+        const obj = {
+            a: {
+                b: {
+                    foo: "bar"
                 }
-            ]
-        }
-    };
+            }
+        };
 
-    assert.throws(() => {
-        stack.accessOn(obj);
+        assert.strictEqual(stack.accessOn(obj, false), undefined);
+    });
+
+    test("Strict Array Fail", () => {
+        const stack = new Stack(["a", "b", 1, "d"]);
+        const obj = {
+            a: {
+                b: [
+                    {
+                        d: "index 1 doesnt exist"
+                    }
+                ]
+            }
+        };
+
+        assert.throws(() => {
+            stack.accessOn(obj);
+        });
+    });
+
+    test("Non-strict Array Fail", () => {
+        const stack = new Stack(["a", "b", 1, "d"]);
+        const obj = {
+            a: {
+                b: [
+                    {
+                        d: "index 1 doesnt exist"
+                    }
+                ]
+            }
+        };
+
+        assert.strictEqual(stack.accessOn(obj, false), undefined);
     });
 });
 
-test("Stack.accessOn() Non-strict Array Fail", () => {
-    const stack = new Stack(["a", "b", 1, "d"]);
-    const obj = {
-        a: {
-            b: [
-                {
-                    d: "index 1 doesnt exist"
-                }
-            ]
-        }
-    };
+describe("Stack.convertForSchema()", () => {
+    test("Empty Stack", () => {
+        const stack = new Stack();
 
-    assert.strictEqual(stack.accessOn(obj, false), undefined);
+        const target: JSONSchema7 = {
+            type: "object",
+            properties: {
+                test: { type: "boolean" }
+            }
+        };
+        const source = target;
+        const schemaStack = stack.convertForSchema(source);
+
+        assert.deepStrictEqual(schemaStack.toString(), "");
+        assert.strictEqual(schemaStack.accessOn(source), target);
+    });
+
+    test("Single element", () => {
+        const stack = new Stack(["test"]);
+
+        const target: JSONSchema7 = { type: "boolean" };
+        const source: JSONSchema7 = {
+            type: "object",
+            properties: {
+                test: target
+            }
+        };
+        const schemaStack = stack.convertForSchema(source);
+
+        assert.deepStrictEqual(schemaStack.toString(), "properties/test");
+        assert.strictEqual(schemaStack.accessOn(source), target);
+    });
+
+    test("Multiple elements", () => {
+        const stack = new Stack(["test", "123", "abc"]);
+
+        const target: JSONSchema7 = { type: "boolean" };
+        const source: JSONSchema7 = {
+            type: "object",
+            properties: {
+                test: {
+                    type: "object",
+                    properties: {
+                        "123": {
+                            type: "object",
+                            properties: {
+                                abc: target
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        const schemaStack = stack.convertForSchema(source);
+
+        assert.deepStrictEqual(
+            schemaStack.toString(),
+            "properties/test/properties/123/properties/abc"
+        );
+        assert.strictEqual(schemaStack.accessOn(source), target);
+    });
+
+    test("Numerical elements", () => {
+        const stack = new Stack(["test", 123, "abc"]);
+
+        const target: JSONSchema7 = { type: "boolean" };
+        const source: JSONSchema7 = {
+            type: "object",
+            properties: {
+                test: {
+                    type: "object",
+                    properties: {
+                        123: {
+                            type: "object",
+                            properties: {
+                                abc: target
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        const schemaStack = stack.convertForSchema(source);
+
+        assert.deepStrictEqual(
+            schemaStack.toString(),
+            "properties/test/properties/123/properties/abc"
+        );
+        assert.strictEqual(schemaStack.accessOn(source), target);
+    });
+
+    test("Pattern properties", () => {
+        const stack = new Stack(["test", "123", "abc"]);
+
+        const target: JSONSchema7 = { type: "boolean" };
+        const source: JSONSchema7 = {
+            type: "object",
+            properties: {
+                test: {
+                    type: "object",
+                    patternProperties: {
+                        "^\\d+$": {
+                            type: "object",
+                            properties: {
+                                abc: target
+                            }
+                        },
+                        "^[a-zA-Z]+$": {
+                            type: "object",
+                            properties: {
+                                abc: { type: "boolean" }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        const schemaStack = stack.convertForSchema(source);
+
+        assert.deepStrictEqual(
+            schemaStack.toString(),
+            "properties/test/patternProperties/^\\\\d+$/properties/abc"
+        );
+        assert.strictEqual(schemaStack.accessOn(source), target);
+    });
+
+    test("Pattern properties don't need to match full string", () => {
+        const stack = new Stack(["test", "123", "abc"]);
+
+        const target: JSONSchema7 = { type: "boolean" };
+        const source: JSONSchema7 = {
+            type: "object",
+            properties: {
+                test: {
+                    type: "object",
+                    patternProperties: {
+                        "a*": {
+                            type: "object",
+                            properties: {
+                                abc: target
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        const schemaStack = stack.convertForSchema(source);
+
+        assert.strictEqual(
+            schemaStack.toString(),
+            "properties/test/patternProperties/a*/properties/abc"
+        );
+        assert.strictEqual(schemaStack.accessOn(source), target);
+    });
+
+    test("Additional properties", () => {
+        const stack = new Stack(["test", "123", "abc"]);
+
+        const target: JSONSchema7 = { type: "boolean" };
+        const source: JSONSchema7 = {
+            type: "object",
+            properties: {
+                test: {
+                    type: "object",
+                    properties: {
+                        boop: {
+                            type: "object",
+                            properties: {
+                                abc: { type: "boolean" }
+                            }
+                        }
+                    },
+                    patternProperties: {
+                        "^[^\\d]*$": {
+                            type: "object",
+                            properties: {
+                                abc: { type: "boolean" }
+                            }
+                        }
+                    },
+                    additionalProperties: {
+                        type: "object",
+                        properties: {
+                            abc: target
+                        }
+                    }
+                }
+            }
+        };
+        const schemaStack = stack.convertForSchema(source);
+
+        assert.deepStrictEqual(
+            schemaStack.toString(),
+            "properties/test/additionalProperties/properties/abc"
+        );
+        assert.strictEqual(schemaStack.accessOn(source), target);
+    });
+
+    test("Items schema", () => {
+        const stack = new Stack(["test", "123", 12, "abc"]);
+
+        const target: JSONSchema7 = { type: "boolean" };
+        const source: JSONSchema7 = {
+            type: "object",
+            properties: {
+                test: {
+                    type: "object",
+                    properties: {
+                        "123": {
+                            type: "array",
+                            items: {
+                                type: "object",
+                                properties: {
+                                    abc: target
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        const schemaStack = stack.convertForSchema(source);
+
+        assert.deepStrictEqual(
+            schemaStack.toString(),
+            "properties/test/properties/123/items/properties/abc"
+        );
+        assert.strictEqual(schemaStack.accessOn(source), target);
+    });
+
+    test("Items tuple", () => {
+        const stack = new Stack(["test", "123", 2, "abc"]);
+
+        const target: JSONSchema7 = { type: "boolean" };
+        const source: JSONSchema7 = {
+            type: "object",
+            properties: {
+                test: {
+                    type: "object",
+                    properties: {
+                        "123": {
+                            type: "array",
+                            items: [
+                                { type: "string" },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        xyz: { type: "boolean" }
+                                    }
+                                },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: target
+                                    }
+                                },
+                                { type: "boolean" }
+                            ]
+                        }
+                    }
+                }
+            }
+        };
+        const schemaStack = stack.convertForSchema(source);
+
+        assert.deepStrictEqual(
+            schemaStack.toString(),
+            "properties/test/properties/123/items/2/properties/abc"
+        );
+        assert.strictEqual(schemaStack.accessOn(source), target);
+    });
+
+    test("Symbol elements fail", () => {
+        const symbol = Symbol();
+        const stack = new Stack(["test", symbol, "abc"]);
+        assert.throws(() => {
+            stack.convertForSchema({
+                type: "object",
+                properties: {
+                    test: {
+                        type: "object",
+                        properties: {
+                            [symbol]: {
+                                type: "object",
+                                properties: {
+                                    abc: { type: "boolean" }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    });
+
+    test("Unreachable elements fail", () => {
+        const stack = new Stack(["test", "123", "abc"]);
+        assert.throws(() => {
+            stack.convertForSchema({
+                type: "object",
+                properties: {
+                    test: {
+                        type: "object",
+                        properties: {
+                            "123": {
+                                type: "object",
+                                properties: {
+                                    xyz: { type: "boolean" }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    });
+
+    test("Boolean schema definitions fail", () => {
+        const stack = new Stack(["test", "123", "abc"]);
+        assert.throws(() => {
+            stack.convertForSchema({
+                type: "object",
+                properties: {
+                    test: {
+                        type: "object",
+                        properties: {
+                            "123": true
+                        }
+                    }
+                }
+            });
+        });
+    });
 });
