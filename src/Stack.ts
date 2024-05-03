@@ -1,4 +1,5 @@
 import type { JSONSchema7Definition } from "json-schema";
+import { ValueAccessor } from "./util.ts";
 
 export class Stack {
     private readonly stack: (keyof never)[];
@@ -21,6 +22,25 @@ export class Stack {
         const copy = this.copy();
         copy.stack.push(...element);
         return copy;
+    }
+
+    public getAccessor<T>(object: unknown): ValueAccessor<T> {
+        if (this.depth === 0) {
+            throw new Error("Cannot get accessor on an object using an empty stack");
+        }
+        const key = this.stack[this.stack.length - 1];
+        const parent = this.pop().accessOn(object) as { [key: string | number | symbol]: T };
+        if ((typeof parent !== "object" && typeof parent !== "function") || parent === null) {
+            throw new Error(`Cannot access property ${key.toString()} on ${parent}`);
+        }
+        return {
+            get() {
+                return parent[key];
+            },
+            set(value) {
+                parent[key] = value;
+            }
+        };
     }
 
     public accessOn(object: unknown, strict: boolean = true): unknown {

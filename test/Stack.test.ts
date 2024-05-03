@@ -2,6 +2,7 @@ import { describe, test } from "node:test";
 import { Stack } from "../src/index.ts";
 import assert from "node:assert";
 import { JSONSchema7 } from "json-schema";
+import { ValueAccessor } from "../src/util.ts";
 
 describe("Stack.push()", () => {
     test("Basic", () => {
@@ -338,6 +339,195 @@ describe("Stack.accessOn()", () => {
         };
 
         assert.strictEqual(stack.accessOn(obj, false), undefined);
+    });
+});
+
+describe("Stack.getAccessor()", () => {
+    test("Empty stack fails", () => {
+        const stack = new Stack([]);
+        assert.throws(() => {
+            stack.getAccessor({});
+        });
+        assert.throws(() => {
+            stack.getAccessor(true);
+        });
+        assert.throws(() => {
+            stack.getAccessor(undefined);
+        });
+    });
+
+    test("Simple Objects", () => {
+        let stack = new Stack(["abc"]);
+        const obj: any = { abc: 123 };
+        let accessor: ValueAccessor<any> = stack.getAccessor<number>(obj);
+        assert.strictEqual(accessor.get(), 123);
+        accessor.set(456);
+        assert.strictEqual(accessor.get(), 456);
+        assert.strictEqual(obj.abc, 456);
+
+        stack = new Stack(["xyz", 99999]);
+        obj.xyz = {
+            99999: "Elephant!"
+        };
+        accessor = stack.getAccessor<string>(obj);
+
+        assert.strictEqual(accessor.get(), "Elephant!");
+        accessor.set("Giraffe!");
+        assert.strictEqual(accessor.get(), "Giraffe!");
+        assert.strictEqual(obj.xyz[99999], "Giraffe!");
+    });
+
+    test("Arrays & Symbols", () => {
+        let stack = new Stack(["arr", 2]);
+        const obj: any = {
+            arr: ["hi", "hello", "waddup"]
+        };
+        let accessor = stack.getAccessor(obj);
+        assert.strictEqual(accessor.get(), "waddup");
+        accessor.set("poopoo");
+        assert.strictEqual(accessor.get(), "poopoo");
+        assert.strictEqual(obj.arr[2], "poopoo");
+
+        const sym = Symbol("My Symbol");
+        stack = new Stack(["xyz", sym]);
+        obj.xyz = {
+            [sym]: "Milk"
+        };
+        accessor = stack.getAccessor(obj);
+
+        assert.strictEqual(accessor.get(), "Milk");
+        accessor.set("Egg");
+        assert.strictEqual(accessor.get(), "Egg");
+        assert.strictEqual(obj.xyz[sym], "Egg");
+    });
+
+    test("Recursive Object", () => {
+        const stack = new Stack(["a", "b", "a", "b", "a"]);
+        const a: any = {};
+        const b: any = {};
+        a.b = b;
+        b.a = a;
+        const accessor = stack.getAccessor(b);
+
+        assert.strictEqual(accessor.get(), a);
+        accessor.set(b);
+        assert.strictEqual(accessor.get(), b);
+        assert.strictEqual(b.a, b);
+    });
+
+    test("Undefined", () => {
+        const stack = new Stack(["a", "b", "c"]);
+        const obj: any = {
+            a: {
+                b: {}
+            }
+        };
+        const accessor = stack.getAccessor(obj);
+
+        assert.strictEqual(accessor.get(), undefined);
+        accessor.set(true);
+        assert.strictEqual(accessor.get(), true);
+        assert.strictEqual(obj.a.b.c, true);
+    });
+
+    test("Non-object direct accessor failure", () => {
+        const stack = new Stack(["a"]);
+
+        assert.throws(() => {
+            stack.getAccessor(undefined);
+        });
+        assert.throws(() => {
+            stack.getAccessor(null);
+        });
+        assert.throws(() => {
+            stack.getAccessor(true);
+        });
+        assert.throws(() => {
+            stack.getAccessor(false);
+        });
+        assert.throws(() => {
+            stack.getAccessor("hi");
+        });
+        assert.throws(() => {
+            stack.getAccessor(43);
+        });
+        assert.throws(() => {
+            stack.getAccessor(Symbol());
+        });
+        assert.throws(() => {
+            stack.getAccessor(BigInt("999999"));
+        });
+    });
+
+    test("Non-object indirect accessor failure", () => {
+        const stack = new Stack(["a", "b"]);
+        const obj: any = {
+            a: undefined
+        };
+
+        assert.throws(() => {
+            stack.getAccessor(obj);
+        });
+        assert.throws(() => {
+            obj.a = null;
+            stack.getAccessor(obj);
+        });
+        assert.throws(() => {
+            obj.a = true;
+            stack.getAccessor(obj);
+        });
+        assert.throws(() => {
+            obj.a = false;
+            stack.getAccessor(obj);
+        });
+        assert.throws(() => {
+            obj.a = "hello";
+            stack.getAccessor(obj);
+        });
+        assert.throws(() => {
+            obj.a = 99;
+            stack.getAccessor(obj);
+        });
+        assert.throws(() => {
+            obj.a = Symbol("yes");
+            stack.getAccessor(obj);
+        });
+        assert.throws(() => {
+            obj.a = BigInt("1010101010101010101001111111");
+            stack.getAccessor(obj);
+        });
+    });
+
+    test("Object depth failure", () => {
+        const stack = new Stack(["a", "b", "c", "d"]);
+        const obj = {
+            a: {
+                b: {
+                    foo: "bar"
+                }
+            }
+        };
+
+        assert.throws(() => {
+            stack.getAccessor(obj);
+        });
+    });
+
+    test("Array depth failure", () => {
+        const stack = new Stack(["a", "b", 1, "d"]);
+        const obj = {
+            a: {
+                b: [
+                    {
+                        d: "index 1 doesnt exist"
+                    }
+                ]
+            }
+        };
+
+        assert.throws(() => {
+            stack.getAccessor(obj);
+        });
     });
 });
 
