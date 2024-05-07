@@ -548,200 +548,34 @@ describe("Stack.convertForSchema()", () => {
         assert.strictEqual(schemaStack.accessOn(source), target);
     });
 
-    test("Single element", () => {
-        const stack = new Stack(["test"]);
+    describe("Properties", () => {
+        test("Single element", () => {
+            const stack = new Stack(["test"]);
 
-        const target: JSONSchema7 = { type: "boolean" };
-        const source: JSONSchema7 = {
-            type: "object",
-            properties: {
-                test: target
-            }
-        };
-        const schemaStack = stack.convertForSchema(source);
-
-        assert.deepStrictEqual(schemaStack.toString(), "properties/test");
-        assert.strictEqual(schemaStack.accessOn(source), target);
-    });
-
-    test("Multiple elements", () => {
-        const stack = new Stack(["test", "123", "abc"]);
-
-        const target: JSONSchema7 = { type: "boolean" };
-        const source: JSONSchema7 = {
-            type: "object",
-            properties: {
-                test: {
-                    type: "object",
-                    properties: {
-                        "123": {
-                            type: "object",
-                            properties: {
-                                abc: target
-                            }
-                        }
-                    }
+            const target: JSONSchema7 = { type: "boolean" };
+            const source: JSONSchema7 = {
+                type: "object",
+                properties: {
+                    test: target
                 }
-            }
-        };
-        const schemaStack = stack.convertForSchema(source);
+            };
+            const schemaStack = stack.convertForSchema(source);
 
-        assert.deepStrictEqual(
-            schemaStack.toString(),
-            "properties/test/properties/123/properties/abc"
-        );
-        assert.strictEqual(schemaStack.accessOn(source), target);
-    });
+            assert.deepStrictEqual(schemaStack.toString(), "properties/test");
+            assert.strictEqual(schemaStack.accessOn(source), target);
+        });
 
-    test("Numerical elements", () => {
-        const stack = new Stack(["test", 123, "abc"]);
+        test("Multiple elements", () => {
+            const stack = new Stack(["test", "123", "abc"]);
 
-        const target: JSONSchema7 = { type: "boolean" };
-        const source: JSONSchema7 = {
-            type: "object",
-            properties: {
-                test: {
-                    type: "object",
-                    properties: {
-                        123: {
-                            type: "object",
-                            properties: {
-                                abc: target
-                            }
-                        }
-                    }
-                }
-            }
-        };
-        const schemaStack = stack.convertForSchema(source);
-
-        assert.deepStrictEqual(
-            schemaStack.toString(),
-            "properties/test/properties/123/properties/abc"
-        );
-        assert.strictEqual(schemaStack.accessOn(source), target);
-    });
-
-    test("Pattern properties", () => {
-        const stack = new Stack(["test", "123", "abc"]);
-
-        const target: JSONSchema7 = { type: "boolean" };
-        const source: JSONSchema7 = {
-            type: "object",
-            properties: {
-                test: {
-                    type: "object",
-                    patternProperties: {
-                        "^\\d+$": {
-                            type: "object",
-                            properties: {
-                                abc: target
-                            }
-                        },
-                        "^[a-zA-Z]+$": {
-                            type: "object",
-                            properties: {
-                                abc: { type: "boolean" }
-                            }
-                        }
-                    }
-                }
-            }
-        };
-        const schemaStack = stack.convertForSchema(source);
-
-        assert.deepStrictEqual(
-            schemaStack.toString(),
-            "properties/test/patternProperties/^\\\\d+$/properties/abc"
-        );
-        assert.strictEqual(schemaStack.accessOn(source), target);
-    });
-
-    test("Pattern properties don't need to match full string", () => {
-        const stack = new Stack(["test", "123", "abc"]);
-
-        const target: JSONSchema7 = { type: "boolean" };
-        const source: JSONSchema7 = {
-            type: "object",
-            properties: {
-                test: {
-                    type: "object",
-                    patternProperties: {
-                        "a*": {
-                            type: "object",
-                            properties: {
-                                abc: target
-                            }
-                        }
-                    }
-                }
-            }
-        };
-        const schemaStack = stack.convertForSchema(source);
-
-        assert.strictEqual(
-            schemaStack.toString(),
-            "properties/test/patternProperties/a*/properties/abc"
-        );
-        assert.strictEqual(schemaStack.accessOn(source), target);
-    });
-
-    test("Additional properties", () => {
-        const stack = new Stack(["test", "123", "abc"]);
-
-        const target: JSONSchema7 = { type: "boolean" };
-        const source: JSONSchema7 = {
-            type: "object",
-            properties: {
-                test: {
-                    type: "object",
-                    properties: {
-                        boop: {
-                            type: "object",
-                            properties: {
-                                abc: { type: "boolean" }
-                            }
-                        }
-                    },
-                    patternProperties: {
-                        "^[^\\d]*$": {
-                            type: "object",
-                            properties: {
-                                abc: { type: "boolean" }
-                            }
-                        }
-                    },
-                    additionalProperties: {
+            const target: JSONSchema7 = { type: "boolean" };
+            const source: JSONSchema7 = {
+                type: "object",
+                properties: {
+                    test: {
                         type: "object",
                         properties: {
-                            abc: target
-                        }
-                    }
-                }
-            }
-        };
-        const schemaStack = stack.convertForSchema(source);
-
-        assert.deepStrictEqual(
-            schemaStack.toString(),
-            "properties/test/additionalProperties/properties/abc"
-        );
-        assert.strictEqual(schemaStack.accessOn(source), target);
-    });
-
-    test("Items schema", () => {
-        const stack = new Stack(["test", "123", 12, "abc"]);
-
-        const target: JSONSchema7 = { type: "boolean" };
-        const source: JSONSchema7 = {
-            type: "object",
-            properties: {
-                test: {
-                    type: "object",
-                    properties: {
-                        "123": {
-                            type: "array",
-                            items: {
+                            "123": {
                                 type: "object",
                                 properties: {
                                     abc: target
@@ -750,31 +584,268 @@ describe("Stack.convertForSchema()", () => {
                         }
                     }
                 }
-            }
-        };
-        const schemaStack = stack.convertForSchema(source);
+            };
+            const schemaStack = stack.convertForSchema(source);
 
-        assert.deepStrictEqual(
-            schemaStack.toString(),
-            "properties/test/properties/123/items/properties/abc"
-        );
-        assert.strictEqual(schemaStack.accessOn(source), target);
+            assert.deepStrictEqual(
+                schemaStack.toString(),
+                "properties/test/properties/123/properties/abc"
+            );
+            assert.strictEqual(schemaStack.accessOn(source), target);
+        });
+
+        test("Numerical elements", () => {
+            const stack = new Stack(["test", 123, "abc"]);
+
+            const target: JSONSchema7 = { type: "boolean" };
+            const source: JSONSchema7 = {
+                type: "object",
+                properties: {
+                    test: {
+                        type: "object",
+                        properties: {
+                            123: {
+                                type: "object",
+                                properties: {
+                                    abc: target
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            const schemaStack = stack.convertForSchema(source);
+
+            assert.deepStrictEqual(
+                schemaStack.toString(),
+                "properties/test/properties/123/properties/abc"
+            );
+            assert.strictEqual(schemaStack.accessOn(source), target);
+        });
+
+        test("Pattern properties", () => {
+            const stack = new Stack(["test", "123", "abc"]);
+
+            const target: JSONSchema7 = { type: "boolean" };
+            const source: JSONSchema7 = {
+                type: "object",
+                properties: {
+                    test: {
+                        type: "object",
+                        patternProperties: {
+                            "^\\d+$": {
+                                type: "object",
+                                properties: {
+                                    abc: target
+                                }
+                            },
+                            "^[a-zA-Z]+$": {
+                                type: "object",
+                                properties: {
+                                    abc: { type: "boolean" }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            const schemaStack = stack.convertForSchema(source);
+
+            assert.deepStrictEqual(
+                schemaStack.toString(),
+                "properties/test/patternProperties/^\\\\d+$/properties/abc"
+            );
+            assert.strictEqual(schemaStack.accessOn(source), target);
+        });
+
+        test("Pattern properties don't need to match full string", () => {
+            const stack = new Stack(["test", "123", "abc"]);
+
+            const target: JSONSchema7 = { type: "boolean" };
+            const source: JSONSchema7 = {
+                type: "object",
+                properties: {
+                    test: {
+                        type: "object",
+                        patternProperties: {
+                            "a*": {
+                                type: "object",
+                                properties: {
+                                    abc: target
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            const schemaStack = stack.convertForSchema(source);
+
+            assert.strictEqual(
+                schemaStack.toString(),
+                "properties/test/patternProperties/a*/properties/abc"
+            );
+            assert.strictEqual(schemaStack.accessOn(source), target);
+        });
+
+        test("Additional properties", () => {
+            const stack = new Stack(["test", "123", "abc"]);
+
+            const target: JSONSchema7 = { type: "boolean" };
+            const source: JSONSchema7 = {
+                type: "object",
+                properties: {
+                    test: {
+                        type: "object",
+                        properties: {
+                            boop: {
+                                type: "object",
+                                properties: {
+                                    abc: { type: "boolean" }
+                                }
+                            }
+                        },
+                        patternProperties: {
+                            "^[^\\d]*$": {
+                                type: "object",
+                                properties: {
+                                    abc: { type: "boolean" }
+                                }
+                            }
+                        },
+                        additionalProperties: {
+                            type: "object",
+                            properties: {
+                                abc: target
+                            }
+                        }
+                    }
+                }
+            };
+            const schemaStack = stack.convertForSchema(source);
+
+            assert.deepStrictEqual(
+                schemaStack.toString(),
+                "properties/test/additionalProperties/properties/abc"
+            );
+            assert.strictEqual(schemaStack.accessOn(source), target);
+        });
     });
 
-    test("Items tuple", () => {
-        const stack = new Stack(["test", "123", 2, "abc"]);
+    describe("Items", () => {
+        test("Items schema", () => {
+            const stack = new Stack(["test", "123", 12, "abc"]);
 
-        const target: JSONSchema7 = { type: "boolean" };
-        const source: JSONSchema7 = {
-            type: "object",
-            properties: {
-                test: {
+            const target: JSONSchema7 = { type: "boolean" };
+            const source: JSONSchema7 = {
+                type: "object",
+                properties: {
+                    test: {
+                        type: "object",
+                        properties: {
+                            "123": {
+                                type: "array",
+                                items: {
+                                    type: "object",
+                                    properties: {
+                                        abc: target
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            const schemaStack = stack.convertForSchema(source);
+
+            assert.deepStrictEqual(
+                schemaStack.toString(),
+                "properties/test/properties/123/items/properties/abc"
+            );
+            assert.strictEqual(schemaStack.accessOn(source), target);
+        });
+
+        test("Items tuple", () => {
+            const stack = new Stack(["test", "123", 2, "abc"]);
+
+            const target: JSONSchema7 = { type: "boolean" };
+            const source: JSONSchema7 = {
+                type: "object",
+                properties: {
+                    test: {
+                        type: "object",
+                        properties: {
+                            "123": {
+                                type: "array",
+                                items: [
+                                    { type: "string" },
+                                    {
+                                        type: "object",
+                                        properties: {
+                                            xyz: { type: "boolean" }
+                                        }
+                                    },
+                                    {
+                                        type: "object",
+                                        properties: {
+                                            abc: target
+                                        }
+                                    },
+                                    { type: "boolean" }
+                                ]
+                            }
+                        }
+                    }
+                }
+            };
+            const schemaStack = stack.convertForSchema(source);
+
+            assert.deepStrictEqual(
+                schemaStack.toString(),
+                "properties/test/properties/123/items/2/properties/abc"
+            );
+            assert.strictEqual(schemaStack.accessOn(source), target);
+        });
+    });
+
+    describe("Schema Compositions", () => {
+        describe("anyOf Keyword", () => {
+            test("anyOf single entry", () => {
+                const stack = new Stack(["test", "abc"]);
+
+                const target: JSONSchema7 = { type: "boolean" };
+                const source: JSONSchema7 = {
                     type: "object",
                     properties: {
-                        "123": {
-                            type: "array",
-                            items: [
-                                { type: "string" },
+                        test: {
+                            anyOf: [
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: target
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                };
+                const schemaStack = stack.convertForSchema(source);
+
+                assert.deepStrictEqual(
+                    schemaStack.toString(),
+                    "properties/test/anyOf/0/properties/abc"
+                );
+                assert.strictEqual(schemaStack.accessOn(source), target);
+            });
+
+            test("anyOf multiple entries", () => {
+                const stack = new Stack(["test", "abc"]);
+
+                const target: JSONSchema7 = { type: "boolean" };
+                const source: JSONSchema7 = {
+                    type: "object",
+                    properties: {
+                        test: {
+                            anyOf: [
                                 {
                                     type: "object",
                                     properties: {
@@ -787,80 +858,953 @@ describe("Stack.convertForSchema()", () => {
                                         abc: target
                                     }
                                 },
-                                { type: "boolean" }
+                                {
+                                    type: "string"
+                                }
                             ]
                         }
                     }
-                }
-            }
-        };
-        const schemaStack = stack.convertForSchema(source);
+                };
+                const schemaStack = stack.convertForSchema(source);
 
-        assert.deepStrictEqual(
-            schemaStack.toString(),
-            "properties/test/properties/123/items/2/properties/abc"
-        );
-        assert.strictEqual(schemaStack.accessOn(source), target);
-    });
+                assert.deepStrictEqual(
+                    schemaStack.toString(),
+                    "properties/test/anyOf/1/properties/abc"
+                );
+                assert.strictEqual(schemaStack.accessOn(source), target);
+            });
 
-    test("Symbol elements fail", () => {
-        const symbol = Symbol();
-        const stack = new Stack(["test", symbol, "abc"]);
-        assert.throws(() => {
-            stack.convertForSchema({
-                type: "object",
-                properties: {
-                    test: {
-                        type: "object",
-                        properties: {
-                            [symbol]: {
-                                type: "object",
-                                properties: {
-                                    abc: { type: "boolean" }
+            test("anyOf deepest match", () => {
+                const stack = new Stack(["test", "abc", "xyz", "one_two"]);
+
+                const target: JSONSchema7 = { type: "boolean" };
+                const source: JSONSchema7 = {
+                    type: "object",
+                    properties: {
+                        test: {
+                            anyOf: [
+                                {
+                                    type: "object",
+                                    properties: {
+                                        xyz: {
+                                            type: "object",
+                                            properties: {
+                                                one_two: { type: "boolean" }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: { type: "boolean" }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: {
+                                                    type: "object",
+                                                    properties: {
+                                                        one_two: target
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
-                            }
+                            ]
                         }
                     }
-                }
+                };
+                const schemaStack = stack.convertForSchema(source);
+
+                assert.deepStrictEqual(
+                    schemaStack.toString(),
+                    "properties/test/anyOf/2/properties/abc/properties/xyz/properties/one_two"
+                );
+                assert.strictEqual(schemaStack.accessOn(source), target);
+            });
+
+            test("anyOf first match of multiple identical", () => {
+                const stack = new Stack(["test", "abc", "xyz", "one_two"]);
+
+                const target: JSONSchema7 = { type: "boolean" };
+                const source: JSONSchema7 = {
+                    type: "object",
+                    properties: {
+                        test: {
+                            anyOf: [
+                                {
+                                    type: "object",
+                                    properties: {
+                                        xyz: {
+                                            type: "object",
+                                            properties: {
+                                                one_two: { type: "boolean" }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: {
+                                                    type: "object",
+                                                    properties: {
+                                                        one_two: target
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: {
+                                                    type: "object",
+                                                    properties: {
+                                                        one_two: { type: "boolean" }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                };
+                const schemaStack = stack.convertForSchema(source);
+
+                assert.deepStrictEqual(
+                    schemaStack.toString(),
+                    "properties/test/anyOf/1/properties/abc/properties/xyz/properties/one_two"
+                );
+                assert.strictEqual(schemaStack.accessOn(source), target);
+            });
+
+            test("anyOf first match of multiple different but congruently equal", () => {
+                const stack = new Stack(["test", "abc", "xyz", "one_two"]);
+
+                const target: JSONSchema7 = { type: "boolean" };
+                const source: JSONSchema7 = {
+                    type: "object",
+                    properties: {
+                        test: {
+                            anyOf: [
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            anyOf: [
+                                                {
+                                                    type: "object",
+                                                    properties: {
+                                                        woof_woof: {
+                                                            type: "object",
+                                                            properties: {
+                                                                one_two: { type: "boolean" }
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    type: "object",
+                                                    properties: {
+                                                        xyz: {
+                                                            type: "object",
+                                                            properties: {
+                                                                one_two: target
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: {
+                                                    type: "object",
+                                                    properties: {
+                                                        one_two: { type: "boolean" }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                };
+                const schemaStack = stack.convertForSchema(source);
+
+                assert.deepStrictEqual(
+                    schemaStack.toString(),
+                    "properties/test/anyOf/0/properties/abc/anyOf/1/properties/xyz/properties/one_two"
+                );
+                assert.strictEqual(schemaStack.accessOn(source), target);
+            });
+        });
+
+        describe("oneOf Keyword", () => {
+            test("oneOf single entry", () => {
+                const stack = new Stack(["test", "abc"]);
+
+                const target: JSONSchema7 = { type: "boolean" };
+                const source: JSONSchema7 = {
+                    type: "object",
+                    properties: {
+                        test: {
+                            oneOf: [
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: target
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                };
+                const schemaStack = stack.convertForSchema(source);
+
+                assert.deepStrictEqual(
+                    schemaStack.toString(),
+                    "properties/test/oneOf/0/properties/abc"
+                );
+                assert.strictEqual(schemaStack.accessOn(source), target);
+            });
+
+            test("oneOf multiple entries", () => {
+                const stack = new Stack(["test", "abc"]);
+
+                const target: JSONSchema7 = { type: "boolean" };
+                const source: JSONSchema7 = {
+                    type: "object",
+                    properties: {
+                        test: {
+                            oneOf: [
+                                {
+                                    type: "object",
+                                    properties: {
+                                        xyz: { type: "boolean" }
+                                    }
+                                },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: target
+                                    }
+                                },
+                                {
+                                    type: "string"
+                                }
+                            ]
+                        }
+                    }
+                };
+                const schemaStack = stack.convertForSchema(source);
+
+                assert.deepStrictEqual(
+                    schemaStack.toString(),
+                    "properties/test/oneOf/1/properties/abc"
+                );
+                assert.strictEqual(schemaStack.accessOn(source), target);
+            });
+
+            test("oneOf deepest match", () => {
+                const stack = new Stack(["test", "abc", "xyz", "one_two"]);
+
+                const target: JSONSchema7 = { type: "boolean" };
+                const source: JSONSchema7 = {
+                    type: "object",
+                    properties: {
+                        test: {
+                            oneOf: [
+                                {
+                                    type: "object",
+                                    properties: {
+                                        xyz: {
+                                            type: "object",
+                                            properties: {
+                                                one_two: { type: "boolean" }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: { type: "boolean" }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: {
+                                                    type: "object",
+                                                    properties: {
+                                                        one_two: target
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                };
+                const schemaStack = stack.convertForSchema(source);
+
+                assert.deepStrictEqual(
+                    schemaStack.toString(),
+                    "properties/test/oneOf/2/properties/abc/properties/xyz/properties/one_two"
+                );
+                assert.strictEqual(schemaStack.accessOn(source), target);
+            });
+
+            test("oneOf first match of multiple identical", () => {
+                const stack = new Stack(["test", "abc", "xyz", "one_two"]);
+
+                const target: JSONSchema7 = { type: "boolean" };
+                const source: JSONSchema7 = {
+                    type: "object",
+                    properties: {
+                        test: {
+                            oneOf: [
+                                {
+                                    type: "object",
+                                    properties: {
+                                        xyz: {
+                                            type: "object",
+                                            properties: {
+                                                one_two: { type: "boolean" }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: {
+                                                    type: "object",
+                                                    properties: {
+                                                        one_two: target
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: {
+                                                    type: "object",
+                                                    properties: {
+                                                        one_two: { type: "boolean" }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                };
+                const schemaStack = stack.convertForSchema(source);
+
+                assert.deepStrictEqual(
+                    schemaStack.toString(),
+                    "properties/test/oneOf/1/properties/abc/properties/xyz/properties/one_two"
+                );
+                assert.strictEqual(schemaStack.accessOn(source), target);
+            });
+
+            test("oneOf first match of multiple different but congruently equal", () => {
+                const stack = new Stack(["test", "abc", "xyz", "one_two"]);
+
+                const target: JSONSchema7 = { type: "boolean" };
+                const source: JSONSchema7 = {
+                    type: "object",
+                    properties: {
+                        test: {
+                            oneOf: [
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            oneOf: [
+                                                {
+                                                    type: "object",
+                                                    properties: {
+                                                        woof_woof: {
+                                                            type: "object",
+                                                            properties: {
+                                                                one_two: { type: "boolean" }
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    type: "object",
+                                                    properties: {
+                                                        xyz: {
+                                                            type: "object",
+                                                            properties: {
+                                                                one_two: target
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: {
+                                                    type: "object",
+                                                    properties: {
+                                                        one_two: { type: "boolean" }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                };
+                const schemaStack = stack.convertForSchema(source);
+
+                assert.deepStrictEqual(
+                    schemaStack.toString(),
+                    "properties/test/oneOf/0/properties/abc/oneOf/1/properties/xyz/properties/one_two"
+                );
+                assert.strictEqual(schemaStack.accessOn(source), target);
+            });
+        });
+
+        describe("allOf Keyword", () => {
+            test("allOf single entry", () => {
+                const stack = new Stack(["test", "abc"]);
+
+                const target: JSONSchema7 = { type: "boolean" };
+                const source: JSONSchema7 = {
+                    type: "object",
+                    properties: {
+                        test: {
+                            allOf: [
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: target
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                };
+                const schemaStack = stack.convertForSchema(source);
+
+                assert.deepStrictEqual(
+                    schemaStack.toString(),
+                    "properties/test/allOf/0/properties/abc"
+                );
+                assert.strictEqual(schemaStack.accessOn(source), target);
+            });
+
+            test("allOf multiple entries", () => {
+                const stack = new Stack(["test", "abc"]);
+
+                const target: JSONSchema7 = { type: "boolean" };
+                const source: JSONSchema7 = {
+                    type: "object",
+                    properties: {
+                        test: {
+                            allOf: [
+                                {
+                                    type: "object",
+                                    properties: {
+                                        xyz: { type: "boolean" }
+                                    }
+                                },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: target
+                                    }
+                                },
+                                {
+                                    type: "string"
+                                }
+                            ]
+                        }
+                    }
+                };
+                const schemaStack = stack.convertForSchema(source);
+
+                assert.deepStrictEqual(
+                    schemaStack.toString(),
+                    "properties/test/allOf/1/properties/abc"
+                );
+                assert.strictEqual(schemaStack.accessOn(source), target);
+            });
+
+            test("allOf deepest match", () => {
+                const stack = new Stack(["test", "abc", "xyz", "one_two"]);
+
+                const target: JSONSchema7 = { type: "boolean" };
+                const source: JSONSchema7 = {
+                    type: "object",
+                    properties: {
+                        test: {
+                            allOf: [
+                                {
+                                    type: "object",
+                                    properties: {
+                                        xyz: {
+                                            type: "object",
+                                            properties: {
+                                                one_two: { type: "boolean" }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: { type: "boolean" }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: {
+                                                    type: "object",
+                                                    properties: {
+                                                        one_two: target
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                };
+                const schemaStack = stack.convertForSchema(source);
+
+                assert.deepStrictEqual(
+                    schemaStack.toString(),
+                    "properties/test/allOf/2/properties/abc/properties/xyz/properties/one_two"
+                );
+                assert.strictEqual(schemaStack.accessOn(source), target);
+            });
+
+            test("allOf first match of multiple identical", () => {
+                const stack = new Stack(["test", "abc", "xyz", "one_two"]);
+
+                const target: JSONSchema7 = { type: "boolean" };
+                const source: JSONSchema7 = {
+                    type: "object",
+                    properties: {
+                        test: {
+                            allOf: [
+                                {
+                                    type: "object",
+                                    properties: {
+                                        xyz: {
+                                            type: "object",
+                                            properties: {
+                                                one_two: { type: "boolean" }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: {
+                                                    type: "object",
+                                                    properties: {
+                                                        one_two: target
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: {
+                                                    type: "object",
+                                                    properties: {
+                                                        one_two: { type: "boolean" }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                };
+                const schemaStack = stack.convertForSchema(source);
+
+                assert.deepStrictEqual(
+                    schemaStack.toString(),
+                    "properties/test/allOf/1/properties/abc/properties/xyz/properties/one_two"
+                );
+                assert.strictEqual(schemaStack.accessOn(source), target);
+            });
+
+            test("allOf first match of multiple different but congruently equal", () => {
+                const stack = new Stack(["test", "abc", "xyz", "one_two"]);
+
+                const target: JSONSchema7 = { type: "boolean" };
+                const source: JSONSchema7 = {
+                    type: "object",
+                    properties: {
+                        test: {
+                            allOf: [
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            allOf: [
+                                                {
+                                                    type: "object",
+                                                    properties: {
+                                                        woof_woof: {
+                                                            type: "object",
+                                                            properties: {
+                                                                one_two: { type: "boolean" }
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    type: "object",
+                                                    properties: {
+                                                        xyz: {
+                                                            type: "object",
+                                                            properties: {
+                                                                one_two: target
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: {
+                                                    type: "object",
+                                                    properties: {
+                                                        one_two: { type: "boolean" }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                };
+                const schemaStack = stack.convertForSchema(source);
+
+                assert.deepStrictEqual(
+                    schemaStack.toString(),
+                    "properties/test/allOf/0/properties/abc/allOf/1/properties/xyz/properties/one_two"
+                );
+                assert.strictEqual(schemaStack.accessOn(source), target);
+            });
+        });
+
+        describe("Composition Precedence", () => {
+            test("anyOf takes precedence over oneOf", () => {
+                const stack = new Stack(["test", "abc", "xyz"]);
+
+                const target: JSONSchema7 = { type: "boolean" };
+                const source: JSONSchema7 = {
+                    type: "object",
+                    properties: {
+                        test: {
+                            oneOf: [
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: { type: "boolean" }
+                                            }
+                                        }
+                                    }
+                                }
+                            ],
+                            anyOf: [
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: target
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                };
+                const schemaStack = stack.convertForSchema(source);
+
+                assert.deepStrictEqual(
+                    schemaStack.toString(),
+                    "properties/test/anyOf/0/properties/abc/properties/xyz"
+                );
+                assert.strictEqual(schemaStack.accessOn(source), target);
+            });
+
+            test("oneOf takes precedence over allOf", () => {
+                const stack = new Stack(["test", "abc", "xyz"]);
+
+                const target: JSONSchema7 = { type: "boolean" };
+                const source: JSONSchema7 = {
+                    type: "object",
+                    properties: {
+                        test: {
+                            oneOf: [
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: target
+                                            }
+                                        }
+                                    }
+                                }
+                            ],
+                            allOf: [
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: { type: "boolean" }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                };
+                const schemaStack = stack.convertForSchema(source);
+
+                assert.deepStrictEqual(
+                    schemaStack.toString(),
+                    "properties/test/oneOf/0/properties/abc/properties/xyz"
+                );
+                assert.strictEqual(schemaStack.accessOn(source), target);
+            });
+
+            test("anyOf takes precedence over oneOf takes precedence over allOf", () => {
+                const stack = new Stack(["test", "abc", "xyz"]);
+
+                const target: JSONSchema7 = { type: "boolean" };
+                const source: JSONSchema7 = {
+                    type: "object",
+                    properties: {
+                        test: {
+                            allOf: [
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: { type: "boolean" }
+                                            }
+                                        }
+                                    }
+                                }
+                            ],
+                            anyOf: [
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: target
+                                            }
+                                        }
+                                    }
+                                }
+                            ],
+                            oneOf: [
+                                {
+                                    type: "object",
+                                    properties: {
+                                        abc: {
+                                            type: "object",
+                                            properties: {
+                                                xyz: { type: "boolean" }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                };
+                const schemaStack = stack.convertForSchema(source);
+
+                assert.deepStrictEqual(
+                    schemaStack.toString(),
+                    "properties/test/anyOf/0/properties/abc/properties/xyz"
+                );
+                assert.strictEqual(schemaStack.accessOn(source), target);
             });
         });
     });
 
-    test("Unreachable elements fail", () => {
-        const stack = new Stack(["test", "123", "abc"]);
-        assert.throws(() => {
-            stack.convertForSchema({
-                type: "object",
-                properties: {
-                    test: {
-                        type: "object",
-                        properties: {
-                            "123": {
-                                type: "object",
-                                properties: {
-                                    xyz: { type: "boolean" }
+    describe("Expected Errors", () => {
+        test("Symbol elements fail", () => {
+            const symbol = Symbol();
+            const stack = new Stack(["test", symbol, "abc"]);
+            assert.throws(() => {
+                stack.convertForSchema({
+                    type: "object",
+                    properties: {
+                        test: {
+                            type: "object",
+                            properties: {
+                                [symbol]: {
+                                    type: "object",
+                                    properties: {
+                                        abc: { type: "boolean" }
+                                    }
                                 }
                             }
                         }
                     }
-                }
+                });
             });
         });
-    });
 
-    test("Boolean schema definitions fail", () => {
-        const stack = new Stack(["test", "123", "abc"]);
-        assert.throws(() => {
-            stack.convertForSchema({
-                type: "object",
-                properties: {
-                    test: {
-                        type: "object",
-                        properties: {
-                            "123": true
+        test("Unreachable elements fail", () => {
+            const stack = new Stack(["test", "123", "abc"]);
+            assert.throws(() => {
+                stack.convertForSchema({
+                    type: "object",
+                    properties: {
+                        test: {
+                            type: "object",
+                            properties: {
+                                "123": {
+                                    type: "object",
+                                    properties: {
+                                        xyz: { type: "boolean" }
+                                    }
+                                }
+                            }
                         }
                     }
-                }
+                });
+            });
+        });
+
+        test("Boolean schema definitions fail", () => {
+            const stack = new Stack(["test", "123", "abc"]);
+            assert.throws(() => {
+                stack.convertForSchema({
+                    type: "object",
+                    properties: {
+                        test: {
+                            type: "object",
+                            properties: {
+                                "123": true
+                            }
+                        }
+                    }
+                });
             });
         });
     });

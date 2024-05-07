@@ -1,4 +1,4 @@
-import type { JSONSchema7Definition } from "json-schema";
+import type { JSONSchema7, JSONSchema7Definition } from "json-schema";
 import { ValueAccessor } from "./util.ts";
 
 export class Stack {
@@ -67,6 +67,30 @@ export class Stack {
         return currentValue;
     }
 
+    private attemptConvertSchemaCompositions(schema: JSONSchema7): Stack {
+        // Order matters - this is the order of precedence when multiple compositions may match
+        const compositionKeywords: ("anyOf" | "oneOf" | "allOf")[] = ["anyOf", "oneOf", "allOf"];
+
+        for (const compositionKeyword of compositionKeywords) {
+            const schemaCompositionEntry = schema[compositionKeyword];
+            if (!schemaCompositionEntry) {
+                continue;
+            }
+
+            for (let i = 0; i < schemaCompositionEntry.length; i++) {
+                const subschema = schemaCompositionEntry[i];
+                try {
+                    const subSchemaStack = this.convertForSchema(subschema);
+                    return new Stack([compositionKeyword, i, ...subSchemaStack.elements]);
+                } catch (ignored) {
+                    /* empty */
+                }
+            }
+        }
+
+        throw new Error(`No matching schema found in the schema composition(s)`);
+    }
+
     public convertForSchema(schema: JSONSchema7Definition): Stack {
         if (this.depth === 0) {
             return this.copy();
@@ -84,13 +108,17 @@ export class Stack {
             );
         }
 
+        try {
+            return this.attemptConvertSchemaCompositions(schema);
+        } catch (ignored) {
+            /* empty */
+        }
+
         if (schema.type !== "array" && schema.type !== "object") {
             throw new Error(
                 `Cannot access property "${next.toString()}" on schema (type is not "array" or "object", remaining stack: ${this.toString()})`
             );
         }
-
-        let schemaStack = new Stack();
 
         if (schema.type === "array") {
             if (typeof next !== "number") {
@@ -104,18 +132,15 @@ export class Stack {
                 if (Array.isArray(schema.items)) {
                     const item = schema.items[next];
                     try {
-                        // Double shift to remove array index
                         const subSchemaStack = this.shift().convertForSchema(item);
-                        schemaStack = schemaStack.push("items", next, ...subSchemaStack.elements);
-                        return schemaStack;
+                        return new Stack(["items", next, ...subSchemaStack.elements]);
                     } catch (ignored) {
                         /* empty */
                     }
                 } else {
                     try {
                         const subSchemaStack = this.shift().convertForSchema(schema.items);
-                        schemaStack = schemaStack.push("items", ...subSchemaStack.elements);
-                        return schemaStack;
+                        return new Stack(["items", ...subSchemaStack.elements]);
                     } catch (ignored) {
                         /* empty */
                     }
@@ -125,8 +150,7 @@ export class Stack {
             if (schema.additionalItems && typeof schema.additionalItems !== "boolean") {
                 try {
                     const subSchemaStack = this.shift().convertForSchema(schema.additionalItems);
-                    schemaStack = schemaStack.push("additionalItems", ...subSchemaStack.elements);
-                    return schemaStack;
+                    return new Stack(["additionalItems", ...subSchemaStack.elements]);
                 } catch (ignored) {
                     /* empty */
                 }
@@ -136,8 +160,7 @@ export class Stack {
             if (schema.properties && schema.properties[next]) {
                 try {
                     const subSchemaStack = this.shift().convertForSchema(schema.properties[next]);
-                    schemaStack = schemaStack.push("properties", next, ...subSchemaStack.elements);
-                    return schemaStack;
+                    return new Stack(["properties", next, ...subSchemaStack.elements]);
                 } catch (ignored) {
                     /* empty */
                 }
@@ -151,12 +174,11 @@ export class Stack {
                             const subSchemaStack = this.shift().convertForSchema(
                                 schema.patternProperties[pattern]
                             );
-                            schemaStack = schemaStack.push(
+                            return new Stack([
                                 "patternProperties",
                                 pattern,
                                 ...subSchemaStack.elements
-                            );
-                            return schemaStack;
+                            ]);
                         } catch (ignored) {
                             /* empty */
                         }
@@ -169,11 +191,7 @@ export class Stack {
                     const subSchemaStack = this.shift().convertForSchema(
                         schema.additionalProperties
                     );
-                    schemaStack = schemaStack.push(
-                        "additionalProperties",
-                        ...subSchemaStack.elements
-                    );
-                    return schemaStack;
+                    return new Stack(["additionalProperties", ...subSchemaStack.elements]);
                 } catch (ignored) {
                     /* empty */
                 }
