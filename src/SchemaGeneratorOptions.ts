@@ -1,6 +1,12 @@
 import { JSONSchema7, JSONSchema7Definition } from "json-schema";
 import { Stack } from "./Stack.ts";
 
+export type SchemaGeneratorMiddleware = (
+    value: unknown,
+    stack: Stack,
+    run: (value: unknown, stack: Stack) => JSONSchema7
+) => JSONSchema7;
+
 export type SchemaGeneratorOptions = {
     requireAll?: boolean;
     inferStringFormat?: boolean;
@@ -8,11 +14,7 @@ export type SchemaGeneratorOptions = {
     coerceSymbolsToStrings?: boolean;
     coerceFunctionsToObjects?: boolean;
     additionalProperties?: JSONSchema7Definition;
-    middleware?: (
-        value: unknown,
-        stack: Stack,
-        run: (value: unknown, stack: Stack) => JSONSchema7
-    ) => JSONSchema7;
+    middleware?: SchemaGeneratorMiddleware;
 };
 
 export const defaultSchemaGeneratorOptions: SchemaGeneratorOptions = {

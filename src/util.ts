@@ -5,9 +5,9 @@ import assert from "node:assert";
 const unused = typeof (1 as never);
 export type AllTypeofs = typeof unused;
 
-export type ValueAccessor<T> = {
-    get: () => T;
-    set: (value: T) => void;
+export type ValueAccessor<G, S = G> = {
+    get: () => G;
+    set: (value: S) => void;
 };
 
 export function deepEqual(a: unknown, b: unknown): boolean {
