@@ -10,7 +10,7 @@ export const ArrayHandler: GenericHandler<unknown[]> = (options, value, stack, h
     const itemSchemas: JSONSchema7[] = [];
     valuesLoop: for (let i = 0; i < value.length; i++) {
         const item = value[i];
-        const itemSchema = handle(options, item, stack.push(i.toString()), handle);
+        const itemSchema = handle(options, item, stack.push(i), handle);
         for (const existing of itemSchemas) {
             if (deepEqual(itemSchema, existing)) {
                 continue valuesLoop;
